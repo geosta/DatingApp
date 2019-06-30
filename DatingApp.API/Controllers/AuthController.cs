@@ -14,7 +14,7 @@ namespace DatingApp.API.Controllers
 {
     [Route("api/[controller]")]  //api/auth
     [ApiController]
-     public class AuthController : ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
@@ -26,7 +26,7 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto) 
+        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
 
             userForRegisterDto.Username = userForRegisterDto.Username.ToLower();
@@ -34,7 +34,8 @@ namespace DatingApp.API.Controllers
             if (await _repo.UserExists(userForRegisterDto.Username))
                 return BadRequest("Username already exists");
 
-            var userToCreate = new User {
+            var userToCreate = new User
+            {
                 Username = userForRegisterDto.Username
             };
 
@@ -46,17 +47,18 @@ namespace DatingApp.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userforLoginDto)
         {
+
             var userFromRepo = await _repo.Login(userforLoginDto.Username.ToLower(), userforLoginDto.Password);
 
             if (userFromRepo == null)
                 return Unauthorized();
 
-            var claims = new[] 
+            var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
                 new Claim(ClaimTypes.Name, userFromRepo.Username)
             };
-            
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.
                 GetBytes(_config.GetSection("AppSettings:Token").Value));
 
@@ -73,9 +75,11 @@ namespace DatingApp.API.Controllers
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return Ok(new {
+            return Ok(new
+            {
                 token = tokenHandler.WriteToken(token)
             });
+
         }
 
     }
